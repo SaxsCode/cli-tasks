@@ -26,15 +26,6 @@ def getCredentials() -> Credentials:
             token.write(creds.to_json())
     return creds
 
-# Set arguments
-parser = argparse.ArgumentParser()
-parser.add_argument('--task', type=str)
-parser.add_argument('--note', type=str)
-parser.add_argument('--tasks', action='store_true')
-parser.add_argument('--notes', action='store_true')
-args = parser.parse_args()
-
-
 def getList(service, title):
     results = service.tasklists().list().execute()
     items = results.get("items", [])
@@ -80,8 +71,19 @@ def main():
             show(service, 'Task')
         elif args.notes:
             show(service, 'Notes')
+        else:
+            print("Command not found. Use --help for usage.")
     except HttpError as err:
-        print(err)
+        print(f"Google Task API - ERROR: {err}")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Manage tasks and notes with Google Tasks")
+    parser.add_argument('--task', type=str help="Add a task")
+    parser.add_argument('--note', type=str help="Add a note")
+    parser.add_argument('--tasks', action='store_true' help="Show tasks")
+    parser.add_argument('--notes', action='store_true' help="Show notes")
+    args = parser.parse_args()
     main()
+
+
+
