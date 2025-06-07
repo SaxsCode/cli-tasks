@@ -9,47 +9,35 @@ from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/tasks.readonly"]
 
-def main():
-  creds = None
-  if os.path.exists("token.json"):
-    creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-  if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-      creds.refresh(Request())
-    else:
-      flow = InstalledAppFlow.from_client_secrets_file(
-          "credentials.json", SCOPES
-      )
-      creds = flow.run_local_server(port=0)
-    # Save the credentials for the next run
-    with open("token.json", "w") as token:
-      token.write(creds.to_json())
+parser = argparse.ArgumentParser()
+parser.add_argument('--add', type=str, required=True)
+args = parser.parse_args()
 
-  try:
+def main():
+    creds = None
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "credentials.json", SCOPES
+            )
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open("token.json", "w") as token:
+            token.write(creds.to_json())
+
     service = build("tasks", "v1", credentials=creds)
 
-    # Call the Tasks API
-    results = service.tasklists().list(maxResults=10).execute()
-    items = results.get("items", [])
-
-    if not items:
-      print("No task lists found.")
-      return
-
-    print("Task lists:")
-    for item in items:
-      print(f"{item['title']} ({item['id']})")
-  except HttpError as err:
-    print(err)
-
+    try:
+        if args.add:
+            task = {'title': args.add}
+            results = service.tasks().insert(tasklist='MDEyNjc1NjQ5MDY5NzgyMTc4MDQ6MDow', body=task).execute()
+            print(f"Task created: {args.add}")
+    except HttpError as err:
+        print(err)
 
 if __name__ == "__main__":
-  main()
-
-# parser = argparse.ArgumentParser()
-#
-# parser.add_argument('--task', type=str, required=True)
-#
-# args = parser.parse_args()
-#
-# print('Task added: ', args.task)
+    main()
