@@ -78,10 +78,10 @@ def main():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Manage tasks and notes with Google Tasks")
-    parser.add_argument('--task', type=str help="Add a task")
-    parser.add_argument('--note', type=str help="Add a note")
-    parser.add_argument('--tasks', action='store_true' help="Show tasks")
-    parser.add_argument('--notes', action='store_true' help="Show notes")
+    parser.add_argument('--task', type=str, help="Add a task")
+    parser.add_argument('--note', type=str, help="Add a note")
+    parser.add_argument('--tasks', action='store_true', help="Show tasks")
+    parser.add_argument('--notes', action='store_true', help="Show notes")
     args = parser.parse_args()
     main()
 
