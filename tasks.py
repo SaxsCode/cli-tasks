@@ -7,7 +7,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-SCOPES = ["https://www.googleapis.com/auth/tasks.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/tasks"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--add', type=str, required=True)
