@@ -28,25 +28,58 @@ def getCredentials() -> Credentials:
 
 # Set arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--add', type=str)
-parser.add_argument('--list', action='store_true')
+parser.add_argument('--task', type=str)
+parser.add_argument('--note', type=str)
+parser.add_argument('--tasks', action='store_true')
+parser.add_argument('--notes', action='store_true')
 args = parser.parse_args()
+
+
+def getList(service, title):
+    results = service.tasklists().list().execute()
+    items = results.get("items", [])
+    for item in items:
+        if item.get("title") == title:
+            return item["id"]
+    return None
+
+def add(service, arg, title):
+    tasklistID = getList(service, title)
+
+    if tasklistID == None:
+        print(f'List: {title} does not exist')
+        return
+
+    task = {'title': arg}
+    service.tasks().insert(tasklist=tasklistID, body=task).execute()
+    print(f"[{title}] Task created: {arg}")
+
+def show(service, title):
+    tasklistID = getList(service, title)
+
+    if tasklistID == None:
+        print(f'List: {title} does not exist')
+        return
+
+    results = service.tasks().list(tasklist=tasklistID).execute()
+    tasks = results.get('items', [])
+    print(f"List: {title}")
+    for task in tasks:
+        print(task.get('title'))
 
 def main():
     creds = getCredentials()
     service = build("tasks", "v1", credentials=creds)
-    tasklistID = 'MDEyNjc1NjQ5MDY5NzgyMTc4MDQ6MDow'
 
     try:
-        if args.add:
-            task = {'title': args.add}
-            service.tasks().insert(tasklist=tasklistID, body=task).execute()
-            print(f"Task created: {args.add}")
-        elif args.list:
-            results = service.tasks().list(tasklist=tasklistID).execute()
-            tasks = results.get('items', [])
-            for task in tasks:
-                print(task.get('title'))
+        if args.task:
+            add(service, args.task, 'Task')
+        elif args.note:
+            add(service, args.note, 'Notes')
+        elif args.tasks:
+            show(service, 'Task')
+        elif args.notes:
+            show(service, 'Notes')
     except HttpError as err:
         print(err)
 
