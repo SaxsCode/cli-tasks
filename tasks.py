@@ -9,11 +9,7 @@ from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/tasks"]
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--add', type=str, required=True)
-args = parser.parse_args()
-
-def main():
+def getCredentials() -> Credentials:
     creds = None
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
@@ -28,14 +24,29 @@ def main():
         # Save the credentials for the next run
         with open("token.json", "w") as token:
             token.write(creds.to_json())
+    return creds
 
+# Set arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('--add', type=str)
+parser.add_argument('--list', action='store_true')
+args = parser.parse_args()
+
+def main():
+    creds = getCredentials()
     service = build("tasks", "v1", credentials=creds)
+    tasklistID = 'MDEyNjc1NjQ5MDY5NzgyMTc4MDQ6MDow'
 
     try:
         if args.add:
             task = {'title': args.add}
-            results = service.tasks().insert(tasklist='MDEyNjc1NjQ5MDY5NzgyMTc4MDQ6MDow', body=task).execute()
+            service.tasks().insert(tasklist=tasklistID, body=task).execute()
             print(f"Task created: {args.add}")
+        elif args.list:
+            results = service.tasks().list(tasklist=tasklistID).execute()
+            tasks = results.get('items', [])
+            for task in tasks:
+                print(task.get('title'))
     except HttpError as err:
         print(err)
 
