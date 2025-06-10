@@ -34,7 +34,8 @@ pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib b
 3. **Set up Google OAuth credentials:**
 - Go to the [Google Cloud Console](https://console.cloud.google.com/).
 - Create OAuth 2.0 credentials for a desktop app.
-- Download the `credentials.json` file and place it in the root of the project directory
+- Download the `credentials.json` file.
+- Create a .cli-tasks directory inside your user directory and place the `credentials.json` file inside.
 - The application will always look for `credentials.json` and `token.json` in the project root, regardless of where you run the command.
 
 4. **Build the package:**
