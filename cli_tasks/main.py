@@ -8,23 +8,23 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/tasks"]
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+CRED_PATH = os.path.expanduser("~/.cli-tasks/credentials.json")
+TOKEN_PATH = os.path.expanduser("~/.cli-tasks/token.json")
 
 def getCredentials() -> Credentials:
     creds = None
-    token_path = os.path.join(PROJECT_ROOT, "token.json")
-    credentials_path = os.path.join(PROJECT_ROOT, "credentials.json")
-    if os.path.exists(token_path):
-        creds = Credentials.from_authorized_user_file(token_path, SCOPES)
+    if os.path.exists(TOKEN_PATH):
+        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                credentials_path, SCOPES
+                CRED_PATH, SCOPES
             )
             creds = flow.run_local_server(port=0)
-        with open(token_path, "w") as token:
+        with open(TOKEN_PATH, "w") as token:
             token.write(creds.to_json())
     return creds
 
